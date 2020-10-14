@@ -11,6 +11,3 @@ example.png
 *.local
 #documents
 *.log
-.vscode/
-/.idea/
-/package-lock.json
