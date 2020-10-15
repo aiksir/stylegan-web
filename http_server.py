@@ -319,6 +319,7 @@ def main(argv):
             port=int(os.getenv("HTTP_PORT")),
             host=os.getenv("HTTP_HOST"),
             threaded=False,
+            ssl_context="adhoc",
         )
     except:
         print("server interrupted:", sys.exc_info())
