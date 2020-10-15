@@ -25,6 +25,7 @@ services:
     image: traefik:v1.7
     networks:
       - traefik
+      - default
     env_file:
       - .env
     labels:
@@ -38,7 +39,14 @@ services:
       - "80:80"
       - "443:443"
       - "8080:8080"
-
+    command:
+      --docker \
+      --docker.watch \
+      --docker.exposedbydefault=false \
+      --constraints=tag==${TRAEFIK_TAG} \
+      --logLevel=DEBUG \
+      --accessLog \
+      --web
 networks:
   traefik:
     external: true
