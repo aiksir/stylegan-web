@@ -5,7 +5,7 @@
 			<StoreInput v-show="false" v-model="rightCode" sessionKey="mergerRightCode" />
       <p>
         <h2>Select a model</h2>
-        <v-select :options="['ffhq', 'horse']"></v-select>
+        <v-select v-model="model_name" :options="['ffhq', 'horse']"></v-select>
       </p>
 			<p>
 				<GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension" :latents.sync="sourceLatents[0]" @change="updateResultLatents" :ppLatentsBytes.sync="leftCode" />
@@ -134,7 +134,7 @@
 
 
 			resultImageURL () {
-				return this.cachedResultCode && `/generate?model_name=${this.options}&fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
+				return this.cachedResultCode && `/generate?model_name=${this.model_name.value}&fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
 			},
 
 
