@@ -112,8 +112,8 @@
 				FORMULA_TEXTS,
 				kMax: 1,
 				copyActivated: false,
-        options: ["ffhq", "horse"],
-        model_name: null,
+        options: ['ffhq', 'horse'],
+        model_name: 'ffhq',
 			};
 		},
 

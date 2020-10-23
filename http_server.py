@@ -31,11 +31,14 @@ g_Session = None
 g_LoadingMutex = Lock()
 
 
-def loadGs():
+def loadGs(refresh=False):
     with g_LoadingMutex:
         global g_Gs, g_Synthesis
-        # if g_Gs:
-        #     return g_Gs, g_Synthesis
+        if g_Gs and refresh is False:
+            return g_Gs, g_Synthesis
+        else:
+            g_Gs = None
+            g_Synthesis = None
 
         global model_name
 
@@ -205,12 +208,13 @@ def generate():
     fromW = int(flask.request.args.get("fromW", 0))
 
     global model_name
-    model_name = flask.request.args.get("model_name", "ffhq")
+    fetched_model_name = flask.request.args.get("model_name", "ffhq")
     global g_Session
     global g_dLatentsIn
     # print('g_Session.1:', g_Session)
 
-    gs, synthesis = loadGs()
+    if model_name != fetched_model_name:
+        gs, synthesis = loadGs(refresh=True)
 
     latent_len = gs.input_shape[1]
     if latentsStrX:
