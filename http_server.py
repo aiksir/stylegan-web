@@ -215,6 +215,8 @@ def generate():
 
     if model_name != fetched_model_name:
         gs, synthesis = loadGs(refresh=True)
+    else:
+        gs, synthesis = loadGs()
 
     latent_len = gs.input_shape[1]
     if latentsStrX:
