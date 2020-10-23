@@ -214,6 +214,7 @@ def generate():
     # print('g_Session.1:', g_Session)
 
     if model_name != fetched_model_name:
+        model_name = fetched_model_name
         gs, synthesis = loadGs(refresh=True)
     else:
         gs, synthesis = loadGs()
