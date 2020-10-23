@@ -204,6 +204,10 @@ def generate():
     randomize_noise = int(flask.request.args.get("randomize_noise", 0))
     fromW = int(flask.request.args.get("fromW", 0))
 
+    global model_name
+    print(model_name)
+    model_name = int(flask.request.args.get("model_name", "ffhq"))
+    print(model_name)
     global g_Session
     global g_dLatentsIn
     # print('g_Session.1:', g_Session)
@@ -313,6 +317,7 @@ def project():
 def main(argv):
     global model_name
     model_name = argv[1] if len(argv) > 1 else os.environ.get("MODEL_NAME")
+    print(model_name)
 
     try:
         app.run(

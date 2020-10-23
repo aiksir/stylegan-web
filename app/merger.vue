@@ -3,6 +3,10 @@
 		<aside>
 			<StoreInput v-show="false" v-model="leftCode" sessionKey="mergerLeftCode" />
 			<StoreInput v-show="false" v-model="rightCode" sessionKey="mergerRightCode" />
+      <p>
+        <h2>Select a model</h2>
+        <v-select :options="['ffhq', 'horse']"></v-select>
+      </p>
 			<p>
 				<GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension" :latents.sync="sourceLatents[0]" @change="updateResultLatents" :ppLatentsBytes.sync="leftCode" />
 				<GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension" :latents.sync="sourceLatents[1]" @change="updateResultLatents" :ppLatentsBytes.sync="rightCode" />
@@ -70,7 +74,7 @@
 	import * as LatentCode from "./latentCode.js"
 	import {downloadUrl} from "./utils.js";
 
-
+  import vSelect from 'vue-select';
 
 	const FORMULA_TEXTS = {
 		INTERPOLATION: "(1-k)/2 &centerdot; x1 + (1+k)/2 &centerdot; x2",
@@ -88,6 +92,7 @@
 			GView,
 			StoreInput,
 			Navigator,
+      vSelect,
 		},
 
 
@@ -107,6 +112,7 @@
 				FORMULA_TEXTS,
 				kMax: 1,
 				copyActivated: false,
+        model_name: "ffhq",
 			};
 		},
 
@@ -128,7 +134,7 @@
 
 
 			resultImageURL () {
-				return this.cachedResultCode && `/generate?fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
+				return this.cachedResultCode && `/generate?&${this.options}fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
 			},
 
 

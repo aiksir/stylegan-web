@@ -90,6 +90,7 @@
 </template>
 
 <style src="./common.css"></style>
+<link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
 
 <script>
 	import StoreInput from "./storeinput.vue";

@@ -8,10 +8,10 @@ import resolve from "@rollup/plugin-node-resolve";
 
 
 export default [
-	"index",
-	"projector",
+	// "index",
+	// "projector",
 	"merger",
-	"mappingViewer",
+	// "mappingViewer",
 ].map(entry => ({
 	input: `./app/${entry}.js`,
 
