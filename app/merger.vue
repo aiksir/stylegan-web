@@ -134,7 +134,7 @@
 
 
 			resultImageURL () {
-				return this.cachedResultCode && `/generate?&${this.options}fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
+				return this.cachedResultCode && `/generate?model_name=${this.options}&fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
 			},
 
 
