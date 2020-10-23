@@ -206,7 +206,7 @@ def generate():
 
     global model_name
     print(model_name)
-    model_name = int(flask.request.args.get("model_name", "ffhq"))
+    model_name = flask.request.args.get("model_name", "ffhq")
     print(model_name)
     global g_Session
     global g_dLatentsIn
