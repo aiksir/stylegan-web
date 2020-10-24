@@ -1,413 +1,415 @@
 <template>
-	<div class="merger" @copy.prevent="onCopy">
-		<aside>
-			<StoreInput v-show="false" v-model="leftCode" sessionKey="mergerLeftCode" />
-			<StoreInput v-show="false" v-model="rightCode" sessionKey="mergerRightCode" />
+  <div class="merger" @copy.prevent="onCopy">
+    <aside>
+      <StoreInput v-show="false" v-model="leftCode" sessionKey="mergerLeftCode"/>
+      <StoreInput v-show="false" v-model="rightCode" sessionKey="mergerRightCode"/>
       <p>
-        <h2>Select a model</h2>
-        <v-select v-model="model_name" :options="options"></v-select>
+      <h2>Select a model</h2>
+      <v-select v-model="model_name" :options="options" @change="updateSpec"></v-select>
       </p>
-			<p>
-				<GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension" :latents.sync="sourceLatents[0]" @change="updateResultLatents" :ppLatentsBytes.sync="leftCode" />
-				<GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension" :latents.sync="sourceLatents[1]" @change="updateResultLatents" :ppLatentsBytes.sync="rightCode" />
-			</p>
-			<button class="swap" @click="swapSources">&#x2b04;</button>
-			<p class="operation">
-				<StoreInput v-show="false" v-model="formula" sessionKey="mergerFormula" />
-				<select class="formula" v-model="formula" :title="formula">
-					<option value="INTERPOLATION">&#x27f7;</option>
-					<option value="ADDITION">+</option>
-					<option value="SUBTRACTION">-</option>
-				</select>
-				<span class="description" v-html="FORMULA_TEXTS[formula]"></span>
-			</p>
-			<table class="turner">
-				<tbody>
-					<tr class="aggregation">
-						<td class="chosen">
-							<input type="checkbox" :class="{[`status-${aggregationStatus}`]: true}" :checked="aggregationStatus === 'ALL'" @change="onAggregationChosen" />
-						</td>
-						<td class="index">
-							{{aggregationStatus}}
-						</td>
-						<td class="slider">
-							<input type="range" v-model.number="aggregationBarValue" :min="-kMax" :max="kMax" step="any" :disabled="!Number.isFinite(aggregationBarValue)" />
-						</td>
-						<td class="value">
-							{{Number.isFinite(aggregationBarValue) ? aggregationBarValue.toFixed(2) : null}}
-						</td>
-					</tr>
-					<tr v-for="bar of bars" :key="bar.index">
-						<td class="chosen">
-							<input type="checkbox" v-model="bar.chosen" />
-						</td>
-						<td class="index">
-							{{bar.index + 1}}.
-						</td>
-						<td class="slider">
-							<input type="range" v-model.number="bar.value" :min="-kMax" :max="kMax" step="any" @change="updateResultLatentsLayer(bar.index)" />
-						</td>
-						<td class="value">
-							{{bar.value.toFixed(2)}}
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</aside>
-		<main :class="{loading: resultLoading}">
-			<img v-if="resultImageURL" class="result note-box" :class="{activated: copyActivated}" :src="resultImageURL" @load="resultLoading = false" />
-			<button class="save-result" @click="downloadResult">&#x1f4be;</button>
-		</main>
-		<div v-show="initializing" class="initializing">Model initializing, wait a moment...</div>
-		<Navigator />
-	</div>
+      <p>
+        <GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension"
+               :latents.sync="sourceLatents[0]" @change="updateResultLatents"
+               :ppLatentsBytes.sync="leftCode"/>
+        <GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension"
+               :latents.sync="sourceLatents[1]" @change="updateResultLatents"
+               :ppLatentsBytes.sync="rightCode"/>
+      </p>
+      <button class="swap" @click="swapSources">&#x2b04;</button>
+      <p class="operation">
+        <StoreInput v-show="false" v-model="formula" sessionKey="mergerFormula"/>
+        <select class="formula" v-model="formula" :title="formula">
+          <option value="INTERPOLATION">&#x27f7;</option>
+          <option value="ADDITION">+</option>
+          <option value="SUBTRACTION">-</option>
+        </select>
+        <span class="description" v-html="FORMULA_TEXTS[formula]"></span>
+      </p>
+      <table class="turner">
+        <tbody>
+        <tr class="aggregation">
+          <td class="chosen">
+            <input type="checkbox" :class="{[`status-${aggregationStatus}`]: true}"
+                   :checked="aggregationStatus === 'ALL'" @change="onAggregationChosen"/>
+          </td>
+          <td class="index">
+            {{ aggregationStatus }}
+          </td>
+          <td class="slider">
+            <input type="range" v-model.number="aggregationBarValue" :min="-kMax" :max="kMax" step="any"
+                   :disabled="!Number.isFinite(aggregationBarValue)"/>
+          </td>
+          <td class="value">
+            {{ Number.isFinite(aggregationBarValue) ? aggregationBarValue.toFixed(2) : null }}
+          </td>
+        </tr>
+        <tr v-for="bar of bars" :key="bar.index">
+          <td class="chosen">
+            <input type="checkbox" v-model="bar.chosen"/>
+          </td>
+          <td class="index">
+            {{ bar.index + 1 }}.
+          </td>
+          <td class="slider">
+            <input type="range" v-model.number="bar.value" :min="-kMax" :max="kMax" step="any"
+                   @change="updateResultLatentsLayer(bar.index)"/>
+          </td>
+          <td class="value">
+            {{ bar.value.toFixed(2) }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </aside>
+    <main :class="{loading: resultLoading}">
+      <img v-if="resultImageURL" class="result note-box" :class="{activated: copyActivated}"
+           :src="resultImageURL" @load="resultLoading = false"/>
+      <button class="save-result" @click="downloadResult">&#x1f4be;</button>
+    </main>
+    <div v-show="initializing" class="initializing">Model initializing, wait a moment...</div>
+    <Navigator/>
+  </div>
 </template>
 
 <script>
-	import Vue from "vue";
-	import md5 from "js-md5";
+import Vue from "vue";
+import md5 from "js-md5";
 
-	import GView from "./g-view.vue";
-	import StoreInput from "./storeinput.vue";
-	import Navigator from "./navigator.vue";
+import GView from "./g-view.vue";
+import StoreInput from "./storeinput.vue";
+import Navigator from "./navigator.vue";
 
-	import * as LatentCode from "./latentCode.js"
-	import {downloadUrl} from "./utils.js";
+import * as LatentCode from "./latentCode.js"
+import {downloadUrl} from "./utils.js";
 
-  import vSelect from 'vue-select';
+import vSelect from 'vue-select';
 
-	const FORMULA_TEXTS = {
-		INTERPOLATION: "(1-k)/2 &centerdot; x1 + (1+k)/2 &centerdot; x2",
-		SUBTRACTION: "k &centerdot; (x2 - x1)",
-		ADDITION: "x1 + k &centerdot; x2",
-	};
-
-
-
-	export default {
-		name: "merger",
+const FORMULA_TEXTS = {
+  INTERPOLATION: "(1-k)/2 &centerdot; x1 + (1+k)/2 &centerdot; x2",
+  SUBTRACTION: "k &centerdot; (x2 - x1)",
+  ADDITION: "x1 + k &centerdot; x2",
+};
 
 
-		components: {
-			GView,
-			StoreInput,
-			Navigator,
-      vSelect,
-		},
+export default {
+  name: "merger",
 
 
-		data () {
-			return {
-				spec: null,
-				initializing: false,
-				bars: [],
-				sourceLatents: [null, null],
-				resultLatents: null,
-				cachedResultCode: null,
-				resultUpdateTime: 0,
-				leftCode: null,
-				rightCode: null,
-				resultLoading: false,
-				formula: "INTERPOLATION",
-				FORMULA_TEXTS,
-				kMax: 1,
-				copyActivated: false,
-        options: ['ffhq', 'horse'],
-        model_name: 'ffhq',
-			};
-		},
+  components: {
+    GView,
+    StoreInput,
+    Navigator,
+    vSelect,
+  },
 
 
-		computed: {
-			latentLayers () {
-				return this.spec ? this.spec.synthesis_input_shape[1] : 0;
-			},
+  data() {
+    return {
+      spec: null,
+      initializing: false,
+      bars: [],
+      sourceLatents: [null, null],
+      resultLatents: null,
+      cachedResultCode: null,
+      resultUpdateTime: 0,
+      leftCode: null,
+      rightCode: null,
+      resultLoading: false,
+      formula: "INTERPOLATION",
+      FORMULA_TEXTS,
+      kMax: 1,
+      copyActivated: false,
+      options: ['ffhq', 'horse'],
+      model_name: 'ffhq',
+    };
+  },
 
 
-			latentDimension () {
-				return this.spec ? this.spec.synthesis_input_shape[2] : 512;
-			},
+  computed: {
+    latentLayers() {
+      return this.spec ? this.spec.synthesis_input_shape[1] : 0;
+    },
 
 
-			resultLatentsBytes () {
-				return this.resultLatents && LatentCode.encodeFixed16(this.resultLatents);
-			},
+    latentDimension() {
+      return this.spec ? this.spec.synthesis_input_shape[2] : 512;
+    },
 
 
-			resultImageURL () {
-				return this.cachedResultCode && `/generate?model_name=${this.model_name}&fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
-			},
+    resultLatentsBytes() {
+      return this.resultLatents && LatentCode.encodeFixed16(this.resultLatents);
+    },
 
 
-			aggregationStatus () {
-				const chosenBars = this.bars.filter(bar => bar.chosen);
-				if (chosenBars.length === this.latentLayers)
-					return "ALL";
-
-				if (chosenBars.length)
-					return "PART";
-
-				return "NONE";
-			},
+    resultImageURL() {
+      return this.cachedResultCode && `/generate?model_name=${this.model_name}&fromW=1&xlatents=${encodeURIComponent(this.cachedResultCode)}`;
+    },
 
 
-			aggregationBarValue: {
-				get () {
-					const chosenBars = this.bars.filter(bar => bar.chosen);
-					if (!chosenBars.length)
-						return null;
+    aggregationStatus() {
+      const chosenBars = this.bars.filter(bar => bar.chosen);
+      if (chosenBars.length === this.latentLayers)
+        return "ALL";
 
-					return chosenBars.reduce((sum, bar) => sum + bar.value, 0) / chosenBars.length;
-				},
+      if (chosenBars.length)
+        return "PART";
 
-				set (value) {
-					this.bars.filter(bar => bar.chosen).forEach(bar => {
-						bar.value = value;
-						this.updateResultLatentsLayer(bar.index);
-					});
-				},
-			},
-		},
+      return "NONE";
+    },
 
 
-		async created () {
-			window.$main = this;
+    aggregationBarValue: {
+      get() {
+        const chosenBars = this.bars.filter(bar => bar.chosen);
+        if (!chosenBars.length)
+          return null;
 
-			this.initializing = true;
+        return chosenBars.reduce((sum, bar) => sum + bar.value, 0) / chosenBars.length;
+      },
 
-			const res = await fetch("/spec");
-			this.spec = await res.json();
-			console.log("model spec:", this.spec);
-
-			this.resultLatents = Array(this.spec.synthesis_input_shape[1] * this.spec.synthesis_input_shape[2]).fill(0);
-
-			this.initializing = false;
-		},
-
-
-		methods: {
-			calculateByFormula (x1, x2, k) {
-				switch (this.formula) {
-				case "INTERPOLATION":
-					return (x1 * (1 - k) + x2 * (1 + k)) / 2;
-
-				case "SUBTRACTION":
-					return k * (x2 - x1);
-
-				case "ADDITION":
-					return x1 + k * x2;
-				}
-
-				throw new Error(`unexpected formula: ${this.formula}`);
-			},
+      set(value) {
+        this.bars.filter(bar => bar.chosen).forEach(bar => {
+          bar.value = value;
+          this.updateResultLatentsLayer(bar.index);
+        });
+      },
+    },
+  },
 
 
-			updateResultLatentsLayer (layer) {
-				if (!this.resultLatents || !this.sourceLatents[0] || !this.sourceLatents[1])
-					return;
+  async created() {
+    window.$main = this;
 
-				const k = this.bars[layer].value;
-				for (let i = 0; i < this.latentDimension; ++i) {
-					const index = layer * this.latentDimension + i;
-					//this.resultLatents[index] = (this.sourceLatents[0][index] * (1 - k) + this.sourceLatents[1][index] * (k + 1)) / 2;
-					Vue.set(this.resultLatents, index, this.calculateByFormula(this.sourceLatents[0][index], this.sourceLatents[1][index], k));
-				}
-			},
+    this.initializing = true;
 
+    const res = await fetch("/spec");
+    this.spec = await res.json();
+    console.log("model spec:", this.spec);
 
-			updateResultLatents () {
-				for (let i = 0; i < this.latentLayers; ++i)
-					this.updateResultLatentsLayer(i);
-			},
+    this.resultLatents = Array(this.spec.synthesis_input_shape[1] * this.spec.synthesis_input_shape[2]).fill(0);
+
+    this.initializing = false;
+  },
 
 
-			swapSources () {
-				const temp = this.leftCode;
-				this.leftCode = this.rightCode;
-				this.rightCode = temp;
-			},
+  methods: {
+    calculateByFormula(x1, x2, k) {
+      switch (this.formula) {
+        case "INTERPOLATION":
+          return (x1 * (1 - k) + x2 * (1 + k)) / 2;
+
+        case "SUBTRACTION":
+          return k * (x2 - x1);
+
+        case "ADDITION":
+          return x1 + k * x2;
+      }
+
+      throw new Error(`unexpected formula: ${this.formula}`);
+    },
 
 
-			onCopy (event) {
-				event.clipboardData.setData("text/plain", "w+:" + this.resultLatentsBytes);
-				console.log("Result latent code copied into clipboard.");
+    updateResultLatentsLayer(layer) {
+      if (!this.resultLatents || !this.sourceLatents[0] || !this.sourceLatents[1])
+        return;
 
-				this.copyActivated = true;
-				setTimeout(() => this.copyActivated = false, 100);
-			},
-
-
-			onAggregationChosen () {
-				//console.log("onAggregationChosen:", event);
-				const chosen = this.aggregationStatus === "ALL";
-				this.bars.forEach(bar => bar.chosen = !chosen);
-			},
+      const k = this.bars[layer].value;
+      for (let i = 0; i < this.latentDimension; ++i) {
+        const index = layer * this.latentDimension + i;
+        //this.resultLatents[index] = (this.sourceLatents[0][index] * (1 - k) + this.sourceLatents[1][index] * (k + 1)) / 2;
+        Vue.set(this.resultLatents, index, this.calculateByFormula(this.sourceLatents[0][index], this.sourceLatents[1][index], k));
+      }
+    },
 
 
-			downloadResult () {
-				downloadUrl(this.resultImageURL, `${md5(this.cachedResultCode)}.png`);
-			},
-		},
+    updateResultLatents() {
+      for (let i = 0; i < this.latentLayers; ++i)
+        this.updateResultLatentsLayer(i);
+    },
+
+    updateSpec() {
+      console.log("dogru");
+      window.$main = this;
+
+      this.initializing = true;
+      const res = fetch(`/spec?model_name=${this.model_name}`);
+      this.spec = res.json();
+      console.log("model spec2:", this.spec);
+
+      this.resultLatents = Array(this.spec.synthesis_input_shape[1] * this.spec.synthesis_input_shape[2]).fill(0);
+      this.initializing = false;
+      this.updateResultLatents();
+    },
+
+    swapSources() {
+      const temp = this.leftCode;
+      this.leftCode = this.rightCode;
+      this.rightCode = temp;
+    },
 
 
-		watch: {
-			latentLayers () {
-				this.bars = Array(this.latentLayers).fill(null).map((_, i) => ({
-					index: i,
-					chosen: true,
-					value: 0,
-				}));
+    onCopy(event) {
+      event.clipboardData.setData("text/plain", "w+:" + this.resultLatentsBytes);
+      console.log("Result latent code copied into clipboard.");
 
-				this.updateResultLatents();
-			},
+      this.copyActivated = true;
+      setTimeout(() => this.copyActivated = false, 100);
+    },
 
 
-			resultLatentsBytes () {
-				this.resultUpdateTime = Date.now();
-				setTimeout(() => {
-					if (Date.now() - this.resultUpdateTime > 290)
-						this.cachedResultCode = this.resultLatentsBytes;
-				}, 300);
-			},
+    onAggregationChosen() {
+      //console.log("onAggregationChosen:", event);
+      const chosen = this.aggregationStatus === "ALL";
+      this.bars.forEach(bar => bar.chosen = !chosen);
+    },
 
 
-			resultImageURL () {
-				this.resultLoading = true;
-			},
+    downloadResult() {
+      downloadUrl(this.resultImageURL, `${md5(this.cachedResultCode)}.png`);
+    },
+  },
 
 
-			formula: "updateResultLatents",
-		},
-	};
+  watch: {
+    latentLayers() {
+      this.bars = Array(this.latentLayers).fill(null).map((_, i) => ({
+        index: i,
+        chosen: true,
+        value: 0,
+      }));
+
+      this.updateResultLatents();
+    },
+
+
+    resultLatentsBytes() {
+      this.resultUpdateTime = Date.now();
+      setTimeout(() => {
+        if (Date.now() - this.resultUpdateTime > 290)
+          this.cachedResultCode = this.resultLatentsBytes;
+      }, 300);
+    },
+
+
+    resultImageURL() {
+      this.resultLoading = true;
+    },
+
+
+    formula: "updateResultLatents",
+  },
+};
 </script>
 
 <style src="./common.css"></style>
 
 <style>
-	.g-view
-	{
-		display: inline-block;
-	}
+.g-view {
+  display: inline-block;
+}
 
-	.turner .index
-	{
-		font-size: 10px;
-		width: 2.4em;
-		max-width: 2.4em;
-		text-align: right;
-		user-select: none;
-	}
+.turner .index {
+  font-size: 10px;
+  width: 2.4em;
+  max-width: 2.4em;
+  text-align: right;
+  user-select: none;
+}
 
-	.turner .value
-	{
-		font-size: 11px;
-	}
+.turner .value {
+  font-size: 11px;
+}
 
-	.turner .slider input
-	{
-		width: 320px;
-	}
+.turner .slider input {
+  width: 320px;
+}
 
-	body
-	{
-		overflow: visible;
-	}
+body {
+  overflow: visible;
+}
 
-	.merger
-	{
-		position: relative;
-	}
+.merger {
+  position: relative;
+}
 
-	aside
-	{
-		position: relative;
-		width: 406px;
-	}
+aside {
+  position: relative;
+  width: 406px;
+}
 
-	main
-	{
-		position: absolute;
-		left: 420px;
-		top: 0;
-	}
+main {
+  position: absolute;
+  left: 420px;
+  top: 0;
+}
 
-	.result
-	{
-		height: calc(100vh - 24px);
-	}
+.result {
+  height: calc(100vh - 24px);
+}
 
-	.loading img
-	{
-		opacity: 0.7;
-	}
+.loading img {
+  opacity: 0.7;
+}
 
-	.chosen input.status-PART::before
-	{
-		display: inline-block;
-		position: relative;
-		content: "\25a0";
-		color: #666;
-		font-size: 16px;
-		top: -4px;
-		left: 1px;
-	}
+.chosen input.status-PART::before {
+  display: inline-block;
+  position: relative;
+  content: "\25a0";
+  color: #666;
+  font-size: 16px;
+  top: -4px;
+  left: 1px;
+}
 
-	aside .swap
-	{
-		position: absolute;
-		top: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		background: transparent;
-		border: 0;
-		font-size: 20px;
-		cursor: pointer;
-		border-radius: 8px;
-	}
+aside .swap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  border: 0;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 8px;
+}
 
-	aside .swap:hover
-	{
-		background: #fff6;
-		font-weight: bold;
-	}
+aside .swap:hover {
+  background: #fff6;
+  font-weight: bold;
+}
 
-	.operation
-	{
-		text-align: center;
-	}
+.operation {
+  text-align: center;
+}
 
-	.operation .description
-	{
-		color: #aaa;
-		display: inline-block;
-		width: 12em;
-	}
+.operation .description {
+  color: #aaa;
+  display: inline-block;
+  width: 12em;
+}
 
-	.formula
-	{
-		display: inline-block;
-		padding: 0 1em;
-		line-height: 120%;
-		font-size: 120%;
-		text-align-last: center;
-		font-weight: bold;
-		border: 0;
-		-webkit-appearance: none;
-		cursor: pointer;
-	}
+.formula {
+  display: inline-block;
+  padding: 0 1em;
+  line-height: 120%;
+  font-size: 120%;
+  text-align-last: center;
+  font-weight: bold;
+  border: 0;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
 
-	.save-result
-	{
-		position: relative;
-		transform: translate(-110%, -40%);
-		cursor: pointer;
-		background: transparent;
-		border: 0;
-		opacity: 0;
-	}
+.save-result {
+  position: relative;
+  transform: translate(-110%, -40%);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  opacity: 0;
+}
 
-	.save-result:hover
-	{
-		opacity: 1;
-	}
+.save-result:hover {
+  opacity: 1;
+}
 </style>

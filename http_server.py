@@ -31,32 +31,29 @@ g_Session = None
 g_LoadingMutex = Lock()
 
 
-def loadGs(refresh=False):
+def loadGs():
     with g_LoadingMutex:
         global g_Gs, g_Synthesis
-        if g_Gs and refresh is False:
+        if g_Gs:
             return g_Gs, g_Synthesis
-        else:
-            g_Gs = None
-            g_Synthesis = None
 
         global model_name
 
-        model_path = os.environ.get("MODEL_PATH_%s" % model_name)
+        model_path = os.environ.get('MODEL_PATH_%s' % model_name)
 
         if model_path is None:
-            print("invalid model name:", model_path)
+            print('invalid model name:', model_path)
             return
 
         global g_Session
         if g_Session is None:
-            print("Initializing dnnlib...")
+            print('Initializing dnnlib...')
             dnnlib.tflib.init_tf()
             g_Session = tf.get_default_session()
 
-        print("Loading model %s ..." % model_name)
+        print('Loading model %s ...' % model_name)
 
-        with open(model_path, "rb") as f:
+        with open(model_path, 'rb') as f:
             with g_Session.as_default():
                 Gi, Di, Gs = pickle.load(f)
                 g_Gs = Gs
@@ -67,17 +64,11 @@ def loadGs(refresh=False):
 
                 # print('Gs.components.synthesis.input_shape:', Gs.components.synthesis.input_shape)
                 global g_dLatentsIn
-                g_dLatentsIn = tf.placeholder(
-                    tf.float32,
-                    [Gs.components.synthesis.input_shape[1] * Gs.input_shape[1]],
-                )
-                dlatents_expr = tf.reshape(
-                    g_dLatentsIn,
-                    [1, Gs.components.synthesis.input_shape[1], Gs.input_shape[1]],
-                )
-                g_Synthesis = Gs.components.synthesis.get_output_for(
-                    dlatents_expr, randomize_noise=False
-                )
+                g_dLatentsIn = tf.placeholder(tf.float32,
+                                              [Gs.components.synthesis.input_shape[1] * Gs.input_shape[1]])
+                dlatents_expr = tf.reshape(g_dLatentsIn,
+                                           [1, Gs.components.synthesis.input_shape[1], Gs.input_shape[1]])
+                g_Synthesis = Gs.components.synthesis.get_output_for(dlatents_expr, randomize_noise=False)
 
     return g_Gs, g_Synthesis
 
@@ -157,7 +148,6 @@ pageRouters = {
     "/mapping-viewer/": "mappingViewer.html",
 }
 for path in pageRouters:
-
     def getHandler(filename):
         return lambda: flask.send_from_directory(DIST_DIR, filename)
 
@@ -166,7 +156,11 @@ for path in pageRouters:
 
 @app.route("/spec", methods=["GET"])
 def spec():
+    fetched_model_name = flask.request.args.get("model_name", "ffhq")
     global model_name
+    if model_name != fetched_model_name:
+        model_name = fetched_model_name
+
     model, _ = loadGs()
 
     return dict(
@@ -208,16 +202,11 @@ def generate():
     fromW = int(flask.request.args.get("fromW", 0))
 
     global model_name
-    fetched_model_name = flask.request.args.get("model_name", "ffhq")
     global g_Session
     global g_dLatentsIn
     # print('g_Session.1:', g_Session)
 
-    if model_name != fetched_model_name:
-        model_name = fetched_model_name
-        gs, synthesis = loadGs(refresh=True)
-    else:
-        gs, synthesis = loadGs()
+    gs, synthesis = loadGs()
 
     latent_len = gs.input_shape[1]
     if latentsStrX:
