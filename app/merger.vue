@@ -1,12 +1,12 @@
 <template>
   <div class="merger" @copy.prevent="onCopy">
+    <p>
+    <h2>Select a model</h2>
+    <v-select v-model="model_name" :options="options"></v-select>
+    </p>
     <aside>
       <StoreInput v-show="false" v-model="leftCode" sessionKey="mergerLeftCode"/>
       <StoreInput v-show="false" v-model="rightCode" sessionKey="mergerRightCode"/>
-      <p>
-      <h2>Select a model</h2>
-      <v-select v-model="model_name" :options="options" @change="updateSpec"></v-select>
-      </p>
       <p>
         <GView class="g-view" :layers="latentLayers" :lastDimension="latentDimension"
                :latents.sync="sourceLatents[0]" @change="updateResultLatents"
@@ -227,13 +227,13 @@ export default {
         this.updateResultLatentsLayer(i);
     },
 
-    updateSpec() {
+    async updateSpec() {
       console.log("dogru");
       window.$main = this;
 
       this.initializing = true;
-      const res = fetch(`/spec?model_name=${this.model_name}`);
-      this.spec = res.json();
+      const res = await fetch(`/spec?model_name=${this.model_name}`);
+      this.spec = await res.json();
       console.log("model spec2:", this.spec);
 
       this.resultLatents = Array(this.spec.synthesis_input_shape[1] * this.spec.synthesis_input_shape[2]).fill(0);
@@ -297,6 +297,10 @@ export default {
 
 
     formula: "updateResultLatents",
+
+    model_name: function (val, oldval) {
+      this.updateSpec();
+    },
   },
 };
 </script>

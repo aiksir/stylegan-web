@@ -34,8 +34,8 @@ g_LoadingMutex = Lock()
 def loadGs():
     with g_LoadingMutex:
         global g_Gs, g_Synthesis
-        if g_Gs:
-            return g_Gs, g_Synthesis
+        # if g_Gs:
+        #     return g_Gs, g_Synthesis
 
         global model_name
 
@@ -206,6 +206,9 @@ def generate():
     global g_dLatentsIn
     # print('g_Session.1:', g_Session)
 
+    fetched_model_name = flask.request.args.get("model_name", "ffhq")
+    if model_name != fetched_model_name:
+        model_name = fetched_model_name
     gs, synthesis = loadGs()
 
     latent_len = gs.input_shape[1]
