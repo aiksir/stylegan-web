@@ -119,8 +119,8 @@ export default {
       FORMULA_TEXTS,
       kMax: 1,
       copyActivated: false,
-      options: ['ffhq', 'horse'],
-      model_name: 'ffhq',
+      options: ['ffhq', 'painting'],
+      model_name: 'painting',
     };
   },
 
