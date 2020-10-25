@@ -416,4 +416,8 @@ aside .swap:hover {
 .save-result:hover {
   opacity: 1;
 }
+
+.v-select {
+  width: 10%;
+}
 </style>
