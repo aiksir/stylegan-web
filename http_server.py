@@ -29,6 +29,7 @@ g_Lpips = None
 g_Projector = None
 g_Session = None
 g_LoadingMutex = Lock()
+model_name = None
 
 
 def loadGs():
@@ -264,6 +265,8 @@ def project():
     if not imageFile:
         flask.abort(400, "image field is requested.")
 
+    global model_name
+    model_name = "ffhq"
     Gs, _ = loadGs()
     image = PIL.Image.open(imageFile.stream).resize(
         (Gs.output_shape[2], Gs.output_shape[3]), PIL.Image.ANTIALIAS
