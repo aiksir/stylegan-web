@@ -1,8 +1,10 @@
-# Copyright (c) 2019, NVIDIA Corporation. All rights reserved.
+﻿# Copyright (c) 2020, NVIDIA CORPORATION.  All rights reserved.
 #
-# This work is made available under the Nvidia Source Code License-NC.
-# To view a copy of this license, visit
-# https://nvlabs.github.io/stylegan2/license.html
+# NVIDIA CORPORATION and its licensors retain all intellectual property
+# and proprietary rights in and to this software, related documentation
+# and any modifications thereto.  Any use, reproduction, disclosure or
+# distribution of this software and related documentation without an express
+# license agreement from NVIDIA CORPORATION is strictly prohibited.
 
 """Helper for adding automatically tracked values to Tensorboard.
 
@@ -23,10 +25,10 @@ Notes:
 
 from collections import OrderedDict
 import numpy as np
+import tensorflow as tf
 from tensorboard import summary as summary_lib
 from tensorboard.plugins.custom_scalar import layout_pb2
 
-from .tfutil import tf
 from . import tfutil
 from .tfutil import TfExpression
 from .tfutil import TfExpressionEx
