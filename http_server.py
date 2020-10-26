@@ -53,9 +53,9 @@ def loadGs():
 
         print('Loading model %s ...' % model_name)
 
-        with open(model_path, 'rb') as f:
+        with dnnlib.util.open_url(model_path) as fp:
             with g_Session.as_default():
-                Gi, Di, Gs = pickle.load(f)
+                _G, _D, Gs = pickle.load(fp)
                 g_Gs = Gs
 
                 ## burn one
@@ -92,10 +92,9 @@ def loadLpips():
             g_Session = tf.get_default_session()
 
         print("Loading model lpips ...")
-
-        with open(model_path, "rb") as f:
+        with dnnlib.util.open_url(model_path) as fp:
             with g_Session.as_default():
-                lpips = pickle.load(f)
+                lpips = pickle.load(fp)
                 g_Lpips = lpips
 
     return g_Lpips
