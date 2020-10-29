@@ -119,7 +119,7 @@ export default {
       FORMULA_TEXTS,
       kMax: 1,
       copyActivated: false,
-      options: ['ffhq', 'painting', 'custom_network_latest', '3_model_128', '3_model_64', '3_model_32'],
+      options: [],
       model_name: 'ffhq',
     };
   },
@@ -187,12 +187,19 @@ export default {
     console.log("model spec:", this.spec);
 
     this.resultLatents = Array(this.spec.synthesis_input_shape[1] * this.spec.synthesis_input_shape[2]).fill(0);
-
+    this.setOptions();
     this.initializing = false;
   },
 
 
   methods: {
+    setOptions() {
+		    fetch('/models')
+          .then(response => response.json())
+          .then(data => this.options = data.keys)
+          .catch(error => console.error(error));
+      },
+
     calculateByFormula(x1, x2, k) {
       switch (this.formula) {
         case "INTERPOLATION":

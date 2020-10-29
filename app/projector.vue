@@ -165,11 +165,11 @@
 	const magnitude = ([x, y]) => (x * x + y * y) ** 0.5;
 
 
-	const projectImage = async function* (image, {path = "/project", steps = 200, yieldInterval = 10, model_name = 'ffhq'}) {
+	const projectImage = async function* (image, {path = "/project", steps = 200, yieldInterval = 10, model = 'ffhq'}) {
 		const form = new FormData();
 		form.append("image", image);
 
-		const response = await fetch(`${path}?steps=${steps}&yieldInterval=${yieldInterval}&model_name=${model_name}`, {
+		const response = await fetch(`${path}?steps=${steps}&yieldInterval=${yieldInterval}&model_name=${model}`, {
 			method: "POST",
 			body: form,
 		});
@@ -509,7 +509,7 @@
 				this.animationUrl = null;
 
 				try {
-					for await (const result of projectImage(target, {steps: this.projectSteps, yieldInterval: this.projectYieldInterval, model:this.model_name})) {
+					for await (const result of projectImage(target, {steps: this.projectSteps, yieldInterval: this.projectYieldInterval, model: this.model_name})) {
 						//console.log("project value:", value);
 						const latents = LatentCode.decodeFixed16(result.latentCodes);
 
@@ -895,6 +895,10 @@
 				const ctx = this.$refs.targetCanvas.getContext("2d");
 				ctx.clearRect(0, 0, this.targetSize.width, this.targetSize.height);
 			},
+
+      model_name: function (val, oldval) {
+        this.updateSpec();
+      },
 		},
 	};
 </script>
