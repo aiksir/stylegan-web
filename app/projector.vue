@@ -8,6 +8,10 @@
 		@mouseup="drageHover = false"
 	>
 		<aside>
+      <p>
+        <h2>Select a model</h2>
+        <v-select v-model="model_name" :options="options"></v-select>
+      </p>
 			<p>
 				<StoreInput v-model.number="projectSteps" type="number" localKey="projectorSteps" :styleObj="{width: '4em'}" :disabled="running" title="projector steps" />
 				/
@@ -152,7 +156,7 @@
 
 	import * as LatentCode from "./latentCode.js";
 	import {downloadUrl} from "./utils.js";
-
+  import vSelect from 'vue-select';
 
 
 	const MOVEMENT_THRESHOLD = 16;
@@ -161,11 +165,11 @@
 	const magnitude = ([x, y]) => (x * x + y * y) ** 0.5;
 
 
-	const projectImage = async function* (image, {path = "/project", steps = 200, yieldInterval = 10}) {
+	const projectImage = async function* (image, {path = "/project", steps = 200, yieldInterval = 10, model_name = 'ffhq'}) {
 		const form = new FormData();
 		form.append("image", image);
 
-		const response = await fetch(`${path}?steps=${steps}&yieldInterval=${yieldInterval}`, {
+		const response = await fetch(`${path}?steps=${steps}&yieldInterval=${yieldInterval}&model_name=${model_name}`, {
 			method: "POST",
 			body: form,
 		});
@@ -215,6 +219,7 @@
 		components: {
 			StoreInput,
 			Navigator,
+      vSelect,
 		},
 
 
@@ -241,6 +246,8 @@
 				faceDetectionConfidence: null,
 				faceRefPoints: null,
 				copyActivated: false,
+        options: [],
+        model_name: 'ffhq',
 			};
 		},
 
@@ -357,10 +364,18 @@
 			this.originTitle = document.title;
 
 			this.loadFaceApiModels();
+			this.setOptions();
 		},
 
 
 		methods: {
+		  setOptions() {
+		    fetch('/models')
+          .then(response => response.json())
+          .then(data => this.options = data.keys)
+          .catch(error => console.error(error));
+      },
+
 			async onPaste(event) {
 				//console.log("onPaste:", event);
 
@@ -494,7 +509,7 @@
 				this.animationUrl = null;
 
 				try {
-					for await (const result of projectImage(target, {steps: this.projectSteps, yieldInterval: this.projectYieldInterval})) {
+					for await (const result of projectImage(target, {steps: this.projectSteps, yieldInterval: this.projectYieldInterval, model:this.model_name})) {
 						//console.log("project value:", value);
 						const latents = LatentCode.decodeFixed16(result.latentCodes);
 
@@ -528,7 +543,7 @@
 
 
 			async getSpec() {
-				return (await fetch("/spec")).json();
+				return (await fetch(`/spec?model_name=${this.model_name}`)).json();
 			},
 
 

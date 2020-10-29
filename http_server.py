@@ -266,7 +266,10 @@ def project():
         flask.abort(400, "image field is requested.")
 
     global model_name
-    model_name = "ffhq"
+    fetched_model_name = flask.request.args.get("model_name", "ffhq")
+    if model_name != fetched_model_name:
+        model_name = fetched_model_name
+
     Gs, _ = loadGs()
     image = PIL.Image.open(imageFile.stream).resize(
         (Gs.output_shape[2], Gs.output_shape[3]), PIL.Image.ANTIALIAS
@@ -311,6 +314,26 @@ def project():
         print("\rProjecting finished.%s" % (" " * 8))
 
     return flask.Response(gen(), mimetype="text/plain")
+
+
+@app.route("/upload_model", methods=["GET", "POST"])
+def upload_model():
+    print(flask.request.files)
+    # global model_name
+    # model = flask.request.files.get("model")
+    # TODO: os.environ[MODEL_PATH_new_model_name] = "/models/uploaded_file.pkl"
+    # new_model_name = "test"
+    # model_name = new_model_name
+    return jsonify({"tes": "123"})
+
+
+@app.route("/models", methods=["GET"])
+def options():
+    models = []
+    for key in os.environ.keys():
+        if key.startswith("MODEL_PATH_") and "LPIPS" not in key:
+            models.append(key[11:])
+    return jsonify({"keys": models})
 
 
 def main(argv):
