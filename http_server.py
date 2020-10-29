@@ -19,6 +19,7 @@ import dnnlib.tflib
 from training import misc
 from projector import Projector
 import latentCode
+from flask import jsonify
 
 load_dotenv(dotenv_path="./.env.local")
 load_dotenv()
