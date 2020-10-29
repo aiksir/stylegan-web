@@ -119,7 +119,7 @@ export default {
       FORMULA_TEXTS,
       kMax: 1,
       copyActivated: false,
-      options: ['ffhq', 'painting', 'custom_network_latest'],
+      options: ['ffhq', 'painting', 'custom_network_latest', '3_model_128', '3_model_64', '3_model_32'],
       model_name: 'ffhq',
     };
   },
