@@ -8,8 +8,8 @@ import postcss from 'rollup-plugin-postcss';
 
 export default [
     // "index",
-    // "projector",
-    // "merger",
+    "projector",
+    "merger",
     // "mappingViewer",
     "upload_model",
 ].map(entry => ({

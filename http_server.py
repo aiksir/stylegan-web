@@ -283,6 +283,7 @@ def project():
 
     global model_name
     fetched_model_name = flask.request.args.get("model_name", "ffhq")
+    print(fetched_model_name, model_name)
     if model_name != fetched_model_name:
         model_name = fetched_model_name
 
