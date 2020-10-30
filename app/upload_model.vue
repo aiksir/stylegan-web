@@ -60,6 +60,7 @@ export default {
 
 .vue-dropzone {
   border-radius: 0.75rem;
+  margin-top: 2rem;
 }
 
 .vue-dropzone > .dz-preview {
