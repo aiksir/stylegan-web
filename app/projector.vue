@@ -896,9 +896,6 @@
 				ctx.clearRect(0, 0, this.targetSize.width, this.targetSize.height);
 			},
 
-      model_name: function (val, oldval) {
-        this.updateSpec();
-      },
 		},
 	};
 </script>

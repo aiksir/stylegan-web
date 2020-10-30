@@ -24,6 +24,10 @@
 						href: "/merger/",
 						name: "MERGER",
 					},
+					{
+						href: "/upload_model",
+						name: "UPLOAD MODEL",
+					},
 				],
 				pathname: location.pathname,
 			};

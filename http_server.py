@@ -19,7 +19,9 @@ import dnnlib.tflib
 from training import misc
 from projector import Projector
 import latentCode
-from flask import jsonify
+from flask import jsonify, flash, redirect
+from flask import request
+from werkzeug.utils import secure_filename
 
 load_dotenv(dotenv_path="./.env.local")
 load_dotenv()
@@ -31,6 +33,15 @@ g_Projector = None
 g_Session = None
 g_LoadingMutex = Lock()
 model_name = None
+CURRENT_DIR = os.getcwd()
+UPLOAD_FOLDER = os.path.join(CURRENT_DIR, "models")
+ALLOWED_EXTENSIONS = {"pkl"}
+MAX_CONTENT_LENGTH = 500 * 1024 * 1024
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def loadGs():
@@ -130,7 +141,9 @@ def loadProjector():
 
 
 app = flask.Flask(__name__, static_url_path="", static_folder="./static")
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+app.secret_key = "super secret key"
 DIST_DIR = "./dist"
 
 
@@ -147,6 +160,7 @@ pageRouters = {
     "/projector/": "projector.html",
     "/merger/": "merger.html",
     "/mapping-viewer/": "mappingViewer.html",
+    "/upload_model": "upload_model.html",
 }
 for path in pageRouters:
     def getHandler(filename):
@@ -319,13 +333,30 @@ def project():
 
 @app.route("/upload_model", methods=["GET", "POST"])
 def upload_model():
-    print(flask.request.files)
-    # global model_name
-    # model = flask.request.files.get("model")
-    # TODO: os.environ[MODEL_PATH_new_model_name] = "/models/uploaded_file.pkl"
-    # new_model_name = "test"
-    # model_name = new_model_name
-    return jsonify({"tes": "123"})
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return jsonify({"is_successful": "False"}), 404
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return jsonify({"is_successful": "False"}), 404
+        if file and allowed_file(file.filename):
+            global model_name
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            env_key = f"MODEL_PATH_{filename}"
+            os.environ[env_key] = file_path
+            return redirect(request.url)
+        else:
+            flash("Isn't allowed")
+            return jsonify({"is_successful": "False"}), 404
+    else:
+        return jsonify({"is_successful": "True"})
 
 
 @app.route("/models", methods=["GET"])

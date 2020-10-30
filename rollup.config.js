@@ -9,8 +9,9 @@ import postcss from 'rollup-plugin-postcss';
 export default [
     // "index",
     // "projector",
-    "merger",
+    // "merger",
     // "mappingViewer",
+    "upload_model",
 ].map(entry => ({
     input: `./app/${entry}.js`,
 
