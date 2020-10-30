@@ -35,6 +35,7 @@ g_LoadingMutex = Lock()
 model_name = None
 CURRENT_DIR = os.getcwd()
 UPLOAD_FOLDER = os.path.join(CURRENT_DIR, "models")
+ENV_FILE = os.path.join(CURRENT_DIR, ".env")
 ALLOWED_EXTENSIONS = {"pkl"}
 MAX_CONTENT_LENGTH = 500 * 1024 * 1024
 
@@ -351,6 +352,8 @@ def upload_model():
             file.save(file_path)
             env_key = f"MODEL_PATH_{filename}"
             os.environ[env_key] = file_path
+            with open(ENV_FILE, "a") as f:
+                f.write(f"\n{env_key}={file_path}")
             return redirect(request.url)
         else:
             flash("Isn't allowed")
