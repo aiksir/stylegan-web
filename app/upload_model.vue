@@ -1,5 +1,6 @@
 <template>
   <div class="text-xs-center">
+  <Navigator />
     <vue-dropzone :options="dropOptions" :useCustomSlot=true ref="ImageVueDropzone">
       <div class="dropzone-custom-content">
         <h3 class="dropzone-custom-title">Drag and drop to upload model!</h3>
@@ -11,6 +12,7 @@
 
 <script>
 import vueDropzone from 'vue2-dropzone';
+import Navigator from "./navigator.vue";
 
 export default {
   name: "projector",
@@ -18,6 +20,7 @@ export default {
 
   components: {
     vueDropzone,
+    Navigator,
   },
 
 
